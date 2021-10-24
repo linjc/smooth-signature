@@ -34,7 +34,7 @@ export default {
         minWidth: 4,
         maxWidth: 12,
         // color: '#1890ff',
-        // bgColor: '#efefef'
+        bgColor: '#efefef'
       };
       this.signature = new SmoothSignature(canvas, options);
     },

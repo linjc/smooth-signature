@@ -1,9 +1,22 @@
 # smooth-signature 带笔锋手写签名
 
-- [Demo](https://l2j2c3.gitee.io/l2j2c3/smooth-signature/demo/index.html) 样例演示，可在PC和移动端上体验，移动端手写更方便些
-- [mini-smooth-signature](https://github.com/linjc/mini-smooth-signature) 小程序版带笔锋手写签名，支持微信/支付宝/钉钉/QQ小程序
+- [mini-smooth-signature](https://github.com/linjc/mini-smooth-signature) 小程序版带笔锋手写签名，支持多平台小程序使用
+
+---
+
+[Demo](https://l2j2c3.gitee.io/l2j2c3/smooth-signature/demo/index.html) 样例演示，可在PC和移动端上体验，移动端手写更方便些
 
 ![Demo](https://l2j2c3.gitee.io/smooth-signature/demo.jpg)
+
+- [安装](#安装)
+- [使用](#使用)
+    - [配置](#配置options)
+- [实现原理](#实现原理)
+    - [1、采集坐标](#1采集画笔经过的点坐标和时间)
+    - [2、计算速度](#2计算两点之间移动速度)
+    - [3、计算线宽](#3计算两点之间线的宽度)
+    - [4、画线](#4画曲线直线)
+- [快捷链接](#快捷链接)
 
 ## 安装
 

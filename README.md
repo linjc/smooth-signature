@@ -2,6 +2,8 @@
 
 - [mini-smooth-signature](https://github.com/linjc/mini-smooth-signature) 小程序版带笔锋手写签名，支持多平台小程序使用
 
+- [signature_pad](https://github.com/szimek/signature_pad) 一款国外开源的H5手写签名库，使用另一种方案实现的笔锋效果
+
 ---
 
 [Demo](https://l2j2c3.gitee.io/l2j2c3/smooth-signature/demo/index.html) 样例演示，可在PC和移动端上体验，移动端手写更方便些

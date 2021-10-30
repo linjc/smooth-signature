@@ -310,5 +310,4 @@ class SmoothSignature {
   }
 }
 
-module.exports = SmoothSignature;
 export default SmoothSignature;

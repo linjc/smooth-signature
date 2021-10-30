@@ -6,6 +6,7 @@
         <button @click="handleClear1">Clear</button>
         <button @click="handleUndo1">Undo</button>
         <button @click="handlePreview1">View PNG</button>
+        <button @click="handleColor1">Change Color</button>
         <button @click="handleFull">Full Screen</button>
       </div>
     </div>
@@ -15,6 +16,7 @@
           <button @click="handleClear2">Clear</button>
           <button @click="handleUndo2">Undo</button>
           <button @click="handlePreview2">View PNG</button>
+          <button @click="handleColor2">Change Color</button>
           <button @click="handleFull">Close Full Screen</button>
         </div>
       </div>
@@ -96,6 +98,19 @@ export default {
       const canvas = this.signature2.getRotateCanvas(-90);
       const pngUrl = canvas.toDataURL();
       window.previewImage(pngUrl, 90);
+    },
+
+    handleColor1() {
+      this.signature1.color = this.getRandomColor();
+    },
+    handleColor2() {
+      this.signature2.color = this.getRandomColor();
+    },
+    getRandomColor() {
+      const r = Math.round(Math.random() * 255);
+      const g = Math.round(Math.random() * 255);
+      const b = Math.round(Math.random() * 255);
+      return `rgb(${r}, ${g}, ${b})`;
     },
   },
 };

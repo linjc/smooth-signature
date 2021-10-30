@@ -4,9 +4,7 @@
       <button @click="handleClear">Clear</button>
       <button @click="handleUndo">Undo</button>
       <button @click="handlePreview">View PNG</button>
-      <button @click="handleSharp">
-        {{ openSmooth ? "Close Smooth" : "Open Smooth" }}
-      </button>
+      <button @click="handleColor">Change Color</button>
     </div>
     <div class="tip">使用手机端手写更方便</div>
     <canvas />
@@ -44,9 +42,11 @@ export default {
     handleUndo() {
       this.signature.undo();
     },
-    handleSharp() {
-      this.openSmooth = !this.openSmooth;
-      this.signature.openSmooth = this.openSmooth;
+    handleColor() {
+      const r = Math.round(Math.random() * 255);
+      const g = Math.round(Math.random() * 255);
+      const b = Math.round(Math.random() * 255);
+      this.signature.color = `rgb(${r}, ${g}, ${b})`;
     },
     handlePreview() {
       const isEmpty = this.signature.isEmpty();

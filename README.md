@@ -1,15 +1,10 @@
 # smooth-signature 带笔锋手写签名
 
-- [mini-smooth-signature](https://github.com/linjc/mini-smooth-signature) 小程序版带笔锋手写签名，支持多平台小程序使用
-
-- [signature_pad](https://github.com/szimek/signature_pad) 一款国外开源的H5手写签名库，使用另一种方案实现的笔锋效果
-
----
-
-[Demo](https://l2j2c3.gitee.io/l2j2c3/smooth-signature/demo/index.html) 样例演示，可在PC和移动端上体验，移动端手写更方便些
+- [Demo在线演示](https://l2j2c3.gitee.io/l2j2c3/smooth-signature/demo/index.html)  以下截图为手机端手写效果图
 
 ![Demo](https://l2j2c3.gitee.io/smooth-signature/demo.jpg)
 
+- [前言](#前言)
 - [安装](#安装)
 - [使用](#使用)
     - [配置](#配置options)
@@ -19,6 +14,11 @@
     - [3、计算线宽](#3计算两点之间线的宽度)
     - [4、画线](#4画曲线直线)
 - [快捷链接](#快捷链接)
+
+## 前言
+受疫情的影响，无纸化流程和电子合同开始普及，电子签名需求也不断增加，签名体验也在逐渐改善，从一开始简单的canvas画线，到追求线条丝滑圆润，再到要求和纸上写字一样的笔锋效果等等。网上不少现成开源的签名库，其中[signature_pad](https://github.com/szimek/signature_pad)笔锋效果实现比较好，但具体使用还是会发现有明显的锯齿感，于是利用工作之余，根据自身理解换了另一种方案实现了一套，同时也为小程序开发了一版，一起分享给有需要的同学。
+
+[mini-smooth-signature](https://github.com/linjc/mini-smooth-signature) 小程序版带笔锋手写签名，支持多平台小程序使用
 
 ## 安装
 

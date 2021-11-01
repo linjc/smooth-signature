@@ -112,9 +112,7 @@ class SmoothSignature {
     if (this.openSmooth) {
       this.initSmoothPoint(pos.x, pos.y);
     } else {
-      this.ctx.lineWidth = this.maxWidth;
-      this.ctx.beginPath();
-      this.ctx.moveTo(pos.x, pos.y);
+      this.initNoSmoothPoint(pos.x, pos.y);
     }
     this.onStart && this.onStart(e);
   }
@@ -128,9 +126,8 @@ class SmoothSignature {
         this.initSmoothPoint(pos.x, pos.y);
         this.drawSmoothLine();
       } else {
-        this.addHistory();
-        this.ctx.lineTo(pos.x, pos.y);
-        this.ctx.stroke();
+        this.initNoSmoothPoint(pos.x, pos.y);
+        this.drawNoSmoothLine();
       }
     }
     if (window.requestAnimationFrame) {
@@ -203,6 +200,31 @@ class SmoothSignature {
       this.drawCurveLine(prePoint.lastX, prePoint.lastY, prePoint.x, prePoint.y, x1, y1, lineWidth);
     }
     this.drawLine(x1, y1, x2, y2, point.lineWidth);
+  }
+
+  initNoSmoothPoint = (x: number, y: number) => {
+    const point: IPoint = { x, y, t: 0 }
+    this.points.push(point);
+    this.points = this.points.slice(-3);
+  }
+
+  drawNoSmoothLine = () => {
+    if (this.points.length < 3) return;
+    this.addHistory();
+    const point: any = this.points.slice(-1)[0];
+    const prePoint: any = this.points.slice(-2, -1)[0];
+    const halfW = (point.x - prePoint.x) / 2;
+    const halfH = (point.y - prePoint.y) / 2;
+    point.lastX = prePoint.x + halfW;
+    point.lastY = prePoint.y + halfH;
+    if (typeof prePoint.lastX === 'number') {
+      this.drawCurveLine(
+        prePoint.lastX, prePoint.lastY,
+        prePoint.x, prePoint.y,
+        point.lastX, point.lastY,
+        this.maxWidth
+      );
+    }
   }
 
   drawLine = (x1: number, y1: number, x2: number, y2: number, lineWidth: number) => {

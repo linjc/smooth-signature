@@ -32,7 +32,7 @@ export default {
         minWidth: 4,
         maxWidth: 12,
         // color: '#1890ff',
-        bgColor: '#efefef'
+        bgColor: '#e9cb93'
       };
       this.signature = new SmoothSignature(canvas, options);
     },
@@ -43,10 +43,7 @@ export default {
       this.signature.undo();
     },
     handleColor() {
-      const r = Math.round(Math.random() * 255);
-      const g = Math.round(Math.random() * 255);
-      const b = Math.round(Math.random() * 255);
-      this.signature.color = `rgb(${r}, ${g}, ${b})`;
+      this.signature.color = '#' + Math.random().toString(16).slice(-6);
     },
     handlePreview() {
       const isEmpty = this.signature.isEmpty();

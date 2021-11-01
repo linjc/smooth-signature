@@ -31,8 +31,6 @@ export default {
   name: "mbDemo",
   data() {
     return {
-      openSmooth1: true,
-      openSmooth2: true,
       showFull: true,
     };
   },
@@ -49,7 +47,7 @@ export default {
         minWidth: 2,
         maxWidth: 6,
         // color: "#1890ff",
-        bgColor: "#efefef",
+        bgColor: '#e9cb93',
       };
       this.signature1 = new SmoothSignature(canvas, options);
     },
@@ -61,7 +59,7 @@ export default {
         minWidth: 3,
         maxWidth: 10,
         // color: "#1890ff",
-        bgColor: "#efefef",
+        bgColor: '#e9cb93',
       };
       this.signature2 = new SmoothSignature(canvas, options);
     },
@@ -107,10 +105,7 @@ export default {
       this.signature2.color = this.getRandomColor();
     },
     getRandomColor() {
-      const r = Math.round(Math.random() * 255);
-      const g = Math.round(Math.random() * 255);
-      const b = Math.round(Math.random() * 255);
-      return `rgb(${r}, ${g}, ${b})`;
+      return '#' + Math.random().toString(16).slice(-6);;
     },
   },
 };

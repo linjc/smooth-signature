@@ -174,7 +174,7 @@ function onMove(event) {
     const point = {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
-        t: Data.now()
+        t: Date.now()
     }
     points.push(point);
 }
@@ -193,7 +193,7 @@ const speed = distance / (end.t - start.t);
 const addWidth = (maxWidth - minWidth) * speed / minSpeed;
 const lineWidth = Math.min(Math.max(maxWidth - addWidth, minWidth), maxWidth);
 ```
-另外，为了防止相邻两条线宽度差太大，需要做下限制，其中maxWidthDiffRate为配置项，preLineWidth为上一条线的宽度
+另外，为了防止相邻两条线宽度差太大，而导致出现明显竹节效果，需要做下限制，其中maxWidthDiffRate为配置项，preLineWidth为上一条线的宽度
 ```js
 const rate = (lineWidth - preLineWidth) / preLineWidth;
 const maxRate = maxWidthDiffRate / 100;

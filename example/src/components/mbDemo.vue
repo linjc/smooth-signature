@@ -47,7 +47,7 @@ export default {
         minWidth: 2,
         maxWidth: 6,
         // color: "#1890ff",
-        bgColor: '#e9cb93',
+        bgColor: '#f6f6f6',
       };
       this.signature1 = new SmoothSignature(canvas, options);
     },
@@ -59,7 +59,7 @@ export default {
         minWidth: 3,
         maxWidth: 10,
         // color: "#1890ff",
-        bgColor: '#e9cb93',
+        bgColor: '#f6f6f6',
       };
       this.signature2 = new SmoothSignature(canvas, options);
     },

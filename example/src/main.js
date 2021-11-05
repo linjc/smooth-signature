@@ -21,7 +21,7 @@ window.previewImage = function (url, degree) {
     },
     viewed() {
       if (degree) {
-        this.viewer.rotateTo(degree);
+        this.viewer.zoomTo(0.8).rotateTo(degree);
       }
     }
   })

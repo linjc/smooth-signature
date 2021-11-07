@@ -71,6 +71,7 @@ class SmoothSignature {
     this.canvas.height = this.height * this.scale;
     this.canvas.width = this.width * this.scale;
     this.ctx.scale(this.scale, this.scale);
+    this.ctx.lineCap = 'round';
     this.drawBgColor();
     this.addListener();
   }
@@ -103,54 +104,43 @@ class SmoothSignature {
     e.preventDefault();
     this.canDraw = true;
     this.canAddHistory = true;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-    this.ctx.shadowBlur = 1;
-    this.ctx.shadowColor = this.color;
     this.ctx.strokeStyle = this.color;
-    const pos = this.getPosition(e);
-    if (this.openSmooth) {
-      this.initSmoothPoint(pos.x, pos.y);
-    } else {
-      this.initNoSmoothPoint(pos.x, pos.y);
-    }
+    this.initPoint(e);
     this.onStart && this.onStart(e);
   }
 
   onDrawMove = (e: any) => {
     e.preventDefault();
     if (!this.canDraw) return;
-    const onMove = () => {
-      const pos = this.getPosition(e);
+    this.initPoint(e);
+    this.onDraw();
+  }
+
+  onDraw = () => {
+    if (this.points.length < 3) return;
+    this.addHistory();
+    const point = this.points.slice(-1)[0];
+    const prePoint = this.points.slice(-2, -1)[0];
+    const onDraw = () => {
       if (this.openSmooth) {
-        this.initSmoothPoint(pos.x, pos.y);
-        this.drawSmoothLine();
+        this.drawSmoothLine(prePoint, point);
       } else {
-        this.initNoSmoothPoint(pos.x, pos.y);
-        this.drawNoSmoothLine();
+        this.drawNoSmoothLine(prePoint, point);
       }
     }
     if (window.requestAnimationFrame) {
-      window.requestAnimationFrame(() => onMove());
+      window.requestAnimationFrame(() => onDraw());
     } else {
-      onMove()
+      onDraw()
     }
   }
 
   onDrawEnd = (e: any) => {
     if (!this.canDraw) return;
     this.canDraw = false;
+    this.canAddHistory = true;
     this.points = [];
     this.onEnd && this.onEnd(e);
-  }
-
-  getPosition = (event: any) => {
-    const rect = this.canvas.getBoundingClientRect();
-    const e = event.touches && event.touches[0] || event;
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    }
   }
 
   getLineWidth = (speed: number) => {
@@ -160,21 +150,28 @@ class SmoothSignature {
     return Math.min(lineWidth, this.maxWidth);
   }
 
-  initSmoothPoint = (x: number, y: number) => {
-    const point: IPoint = { x, y, t: Date.now() }
-    const prePoint = this.points.slice(-1)[0];
-    const prePoint2 = this.points.slice(-2, -1)[0];
-    if (prePoint) {
-      point.distance = Math.sqrt(Math.pow(point.x - prePoint.x, 2) + Math.pow(point.y - prePoint.y, 2));
-      point.speed = point.distance / ((point.t - prePoint.t) || 0.1);
-      point.lineWidth = this.getLineWidth(point.speed);
-      if (prePoint2 && prePoint2.lineWidth && prePoint.lineWidth) {
-        const rate = (point.lineWidth - prePoint.lineWidth) / prePoint.lineWidth;
-        let maxRate = this.maxWidthDiffRate / 100;
-        maxRate = maxRate > 1 ? 1 : maxRate < 0.01 ? 0.01 : maxRate;
-        if (Math.abs(rate) > maxRate) {
-          const per = rate > 0 ? maxRate : -maxRate;
-          point.lineWidth = prePoint.lineWidth * (1 + per);
+  initPoint = (event: any) => {
+    const t = Date.now();
+    const rect = this.canvas.getBoundingClientRect();
+    const e = event.touches && event.touches[0] || event;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const point: IPoint = { x, y, t }
+    if (this.openSmooth) {
+      const prePoint = this.points.slice(-1)[0];
+      const prePoint2 = this.points.slice(-2, -1)[0];
+      if (prePoint) {
+        point.distance = Math.sqrt(Math.pow(point.x - prePoint.x, 2) + Math.pow(point.y - prePoint.y, 2));
+        point.speed = point.distance / ((point.t - prePoint.t) || 0.1);
+        point.lineWidth = this.getLineWidth(point.speed);
+        if (prePoint2 && prePoint2.lineWidth && prePoint.lineWidth) {
+          const rate = (point.lineWidth - prePoint.lineWidth) / prePoint.lineWidth;
+          let maxRate = this.maxWidthDiffRate / 100;
+          maxRate = maxRate > 1 ? 1 : maxRate < 0.01 ? 0.01 : maxRate;
+          if (Math.abs(rate) > maxRate) {
+            const per = rate > 0 ? maxRate : -maxRate;
+            point.lineWidth = prePoint.lineWidth * (1 + per);
+          }
         }
       }
     }
@@ -182,11 +179,7 @@ class SmoothSignature {
     this.points = this.points.slice(-3);
   }
 
-  drawSmoothLine = () => {
-    if (this.points.length < 3) return;
-    this.addHistory();
-    const point: any = this.points.slice(-1)[0];
-    const prePoint: any = this.points.slice(-2, -1)[0];
+  drawSmoothLine = (prePoint: any, point: any) => {
     const perW = (point.x - prePoint.x) * 0.33;
     const perH = (point.y - prePoint.y) * 0.33;
     const x1 = prePoint.x + perW;
@@ -202,17 +195,7 @@ class SmoothSignature {
     this.drawLine(x1, y1, x2, y2, point.lineWidth);
   }
 
-  initNoSmoothPoint = (x: number, y: number) => {
-    const point: IPoint = { x, y, t: 0 }
-    this.points.push(point);
-    this.points = this.points.slice(-3);
-  }
-
-  drawNoSmoothLine = () => {
-    if (this.points.length < 3) return;
-    this.addHistory();
-    const point: any = this.points.slice(-1)[0];
-    const prePoint: any = this.points.slice(-2, -1)[0];
+  drawNoSmoothLine = (prePoint: any, point: any) => {
     const halfW = (point.x - prePoint.x) / 2;
     const halfH = (point.y - prePoint.y) / 2;
     point.lastX = prePoint.x + halfW;
@@ -243,7 +226,7 @@ class SmoothSignature {
     this.ctx.stroke();
   }
 
-  drawBgColor() {
+  drawBgColor = () => {
     if (!this.bgColor) return;
     this.ctx.fillStyle = this.bgColor;
     this.ctx.fillRect(0, 0, this.width, this.height);

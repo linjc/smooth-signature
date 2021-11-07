@@ -34,7 +34,7 @@ yarn add smooth-signature
 <script src="https://unpkg.com/smooth-signature/dist/index.umd.min.js" />
 ```
 
-也可自行下载[smooth-signature.js](https://unpkg.com/browse/smooth-signature/)到本地引用
+也可自行下载[smooth-signature.js](https://unpkg.com/browse/smooth-signature/dist/)到本地引用
 
 ## 使用
 ```html

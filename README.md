@@ -31,10 +31,10 @@ yarn add smooth-signature
 或通过<script>引用，全局变量 **window.SmoothSignature**
 
 ```html
-<script src="https://l2j2c3.gitee.io/smooth-signature/1.0.0/index.min.js" />
+<script src="https://unpkg.com/smooth-signature/dist/index.umd.min.js" />
 ```
 
-也可自行下载[smooth-signature.js](https://gitee.com/l2j2c3/l2j2c3/tree/master/smooth-signature)到本地引用
+也可自行下载[smooth-signature.js](https://unpkg.com/browse/smooth-signature/)到本地引用
 
 ## 使用
 ```html

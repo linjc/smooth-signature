@@ -33,7 +33,7 @@ class SmoothSignature {
   ctx: CanvasRenderingContext2D = {} as any;
   width = 320;
   height = 200;
-  scale = Math.max(window.devicePixelRatio || 1, 2);
+  scale = window.devicePixelRatio || 1;
   color = 'black';
   bgColor = '';
   canDraw = false;
@@ -44,7 +44,7 @@ class SmoothSignature {
   maxWidthDiffRate = 20;
   points: IPoint[] = [];
   canAddHistory = true;
-  historyList: HTMLCanvasElement[] = [];
+  historyList: string[] = [];
   maxHistoryLength = 20;
   onStart: any = () => { }
   onEnd: any = () => { }
@@ -66,11 +66,15 @@ class SmoothSignature {
     this.maxHistoryLength = options.maxHistoryLength || this.maxHistoryLength;
     this.onStart = options.onStart;
     this.onEnd = options.onEnd;
-    this.canvas.style.width = this.width + 'px';
-    this.canvas.style.height = this.height + 'px';
-    this.canvas.height = this.height * this.scale;
-    this.canvas.width = this.width * this.scale;
-    this.ctx.scale(this.scale, this.scale);
+    if (this.scale > 0) {
+      this.canvas.height = this.height * this.scale;
+      this.canvas.width = this.width * this.scale;
+      if (this.scale !== 1) {
+        this.canvas.style.width = this.width + 'px';
+        this.canvas.style.height = this.height + 'px';
+        this.ctx.scale(this.scale, this.scale);
+      }
+    }
     this.ctx.lineCap = 'round';
     this.drawBgColor();
     this.addListener();
@@ -154,13 +158,19 @@ class SmoothSignature {
 
   initPoint = (event: any) => {
     const t = Date.now();
+    const prePoint = this.points.slice(-1)[0];
+    if (prePoint && prePoint.t === t) {
+      return
+    }
     const rect = this.canvas.getBoundingClientRect();
     const e = event.touches && event.touches[0] || event;
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    if (prePoint && prePoint.x === x && prePoint.y === y) {
+      return
+    }
     const point: IPoint = { x, y, t }
     if (this.openSmooth) {
-      const prePoint = this.points.slice(-1)[0];
       const prePoint2 = this.points.slice(-2, -1)[0];
       if (prePoint) {
         point.distance = Math.sqrt(Math.pow(point.x - prePoint.x, 2) + Math.pow(point.y - prePoint.y, 2));
@@ -234,15 +244,20 @@ class SmoothSignature {
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
+  drawByImageUrl = (url: string) => {
+    const image = new Image();
+    image.onload = () => {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+      this.ctx.drawImage(image, 0, 0, this.width, this.height);
+    }
+    image.crossOrigin = 'anonymous';
+    image.src = url;
+  }
+
   addHistory = () => {
     if (!this.maxHistoryLength || !this.canAddHistory) return;
     this.canAddHistory = false;
-    const canvas = document.createElement('canvas');
-    canvas.width = this.canvas.width;
-    canvas.height = this.canvas.height;
-    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-    ctx.drawImage(this.canvas, 0, 0, canvas.width, canvas.height);
-    this.historyList.push(canvas);
+    this.historyList.push(this.canvas.toDataURL());
     this.historyList = this.historyList.slice(-this.maxHistoryLength);
   }
 
@@ -253,13 +268,14 @@ class SmoothSignature {
   }
 
   undo = () => {
-    if (!this.historyList.length) return;
-    const canvas = this.historyList.splice(-1)[0];
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    this.ctx.drawImage(canvas, 0, 0, this.width, this.height);
+    const dataUrl = this.historyList.splice(-1)[0];
+    dataUrl && this.drawByImageUrl(dataUrl);
   }
 
   toDataURL = (type = 'image/png', quality = 1) => {
+    if (this.canvas.width === this.width) {
+      return this.canvas.toDataURL(type, quality);
+    }
     const canvas = document.createElement('canvas');
     canvas.width = this.width;
     canvas.height = this.height;

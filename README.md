@@ -97,7 +97,7 @@ const signature = new SmoothSignature(canvas, {
 
 画布缩放，可用于提高清晰度
 * Type: `number`
-* Default：Math.max(window.devicePixelRatio || 1, 2)
+* Default：window.devicePixelRatio || 1
 
 **options.color**
 

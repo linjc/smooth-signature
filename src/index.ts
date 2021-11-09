@@ -170,20 +170,18 @@ class SmoothSignature {
       return
     }
     const point: IPoint = { x, y, t }
-    if (this.openSmooth) {
+    if (this.openSmooth && prePoint) {
       const prePoint2 = this.points.slice(-2, -1)[0];
-      if (prePoint) {
-        point.distance = Math.sqrt(Math.pow(point.x - prePoint.x, 2) + Math.pow(point.y - prePoint.y, 2));
-        point.speed = point.distance / ((point.t - prePoint.t) || 0.1);
-        point.lineWidth = this.getLineWidth(point.speed);
-        if (prePoint2 && prePoint2.lineWidth && prePoint.lineWidth) {
-          const rate = (point.lineWidth - prePoint.lineWidth) / prePoint.lineWidth;
-          let maxRate = this.maxWidthDiffRate / 100;
-          maxRate = maxRate > 1 ? 1 : maxRate < 0.01 ? 0.01 : maxRate;
-          if (Math.abs(rate) > maxRate) {
-            const per = rate > 0 ? maxRate : -maxRate;
-            point.lineWidth = prePoint.lineWidth * (1 + per);
-          }
+      point.distance = Math.sqrt(Math.pow(point.x - prePoint.x, 2) + Math.pow(point.y - prePoint.y, 2));
+      point.speed = point.distance / ((point.t - prePoint.t) || 0.1);
+      point.lineWidth = this.getLineWidth(point.speed);
+      if (prePoint2 && prePoint2.lineWidth && prePoint.lineWidth) {
+        const rate = (point.lineWidth - prePoint.lineWidth) / prePoint.lineWidth;
+        let maxRate = this.maxWidthDiffRate / 100;
+        maxRate = maxRate > 1 ? 1 : maxRate < 0.01 ? 0.01 : maxRate;
+        if (Math.abs(rate) > maxRate) {
+          const per = rate > 0 ? maxRate : -maxRate;
+          point.lineWidth = prePoint.lineWidth * (1 + per);
         }
       }
     }

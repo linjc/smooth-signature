@@ -21,8 +21,11 @@ interface IPoint {
   speed?: number;
   distance?: number;
   lineWidth?: number;
-  lastX?: number;
-  lastY?: number;
+}
+
+interface IRadianData {
+  val: number;
+  pos: -1 | 1;
 }
 
 class SmoothSignature {
@@ -156,6 +159,49 @@ class SmoothSignature {
     return Math.min(lineWidth, this.maxWidth);
   }
 
+  getRadianData = (x1: number, y1: number, x2: number, y2: number): IRadianData => {
+    const dis_x = x2 - x1;
+    const dis_y = y2 - y1;
+    if (dis_x === 0) {
+      return { val: 0, pos: -1 }
+    }
+    if (dis_y === 0) {
+      return { val: 0, pos: 1 }
+    }
+    const val = Math.abs(Math.atan(dis_y / dis_x));
+    if (x2 > x1 && y2 < y1 || (x2 < x1 && y2 > y1)) {
+      return { val, pos: 1 }
+    }
+    return { val, pos: -1 }
+  }
+
+  getRadianPoints = (radianData: IRadianData, x: number, y: number, halfLineWidth: number) => {
+    if (radianData.val === 0) {
+      if (radianData.pos === 1) {
+        return [
+          { x, y: y + halfLineWidth },
+          { x, y: y - halfLineWidth }
+        ]
+      }
+      return [
+        { y, x: x + halfLineWidth },
+        { y, x: x - halfLineWidth }
+      ]
+    }
+    const dis_x = Math.sin(radianData.val) * halfLineWidth;
+    const dis_y = Math.cos(radianData.val) * halfLineWidth;
+    if (radianData.pos === 1) {
+      return [
+        { x: x + dis_x, y: y + dis_y },
+        { x: x - dis_x, y: y - dis_y }
+      ]
+    }
+    return [
+      { x: x + dis_x, y: y - dis_y },
+      { x: x - dis_x, y: y + dis_y }
+    ]
+  }
+
   initPoint = (event: any) => {
     const t = Date.now();
     const prePoint = this.points.slice(-1)[0];
@@ -190,19 +236,27 @@ class SmoothSignature {
   }
 
   drawSmoothLine = (prePoint: any, point: any) => {
-    const perW = (point.x - prePoint.x) * 0.33;
-    const perH = (point.y - prePoint.y) * 0.33;
-    const x1 = prePoint.x + perW;
-    const y1 = prePoint.y + perH;
-    const x2 = x1 + perW;
-    const y2 = y1 + perH;
-    point.lastX = x2;
-    point.lastY = y2;
-    if (typeof prePoint.lastX === 'number') {
-      const lineWidth = (prePoint.lineWidth + point.lineWidth) / 2;
-      this.drawCurveLine(prePoint.lastX, prePoint.lastY, prePoint.x, prePoint.y, x1, y1, lineWidth);
+    const dis_x = point.x - prePoint.x;
+    const dis_y = point.y - prePoint.y;
+    const x1 = prePoint.x + (dis_x * 0.3);
+    const y1 = prePoint.y + (dis_y * 0.3);
+    const x2 = prePoint.x + (dis_x * 0.7);
+    const y2 = prePoint.y + (dis_y * 0.7);
+    point.lastX1 = x1;
+    point.lastY1 = y1;
+    point.lastX2 = x2;
+    point.lastY2 = y2;
+    point.perLineWidth = (prePoint.lineWidth + point.lineWidth) / 2;
+    if (typeof prePoint.lastX1 === 'number') {
+      this.drawCurveLine(prePoint.lastX2, prePoint.lastY2, prePoint.x, prePoint.y, x1, y1, point.perLineWidth);
+      if (prePoint.isFirstPoint) return;
+      const data = this.getRadianData(prePoint.lastX1, prePoint.lastY1, prePoint.lastX2, prePoint.lastY2);
+      const points1 = this.getRadianPoints(data, prePoint.lastX1, prePoint.lastY1, prePoint.perLineWidth / 2);
+      const points2 = this.getRadianPoints(data, prePoint.lastX2, prePoint.lastY2, point.perLineWidth / 2);
+      this.drawTrapezoid(points1[0], points2[0], points2[1], points1[1]);
+    } else {
+      point.isFirstPoint = true;
     }
-    this.drawLine(x1, y1, x2, y2, point.lineWidth);
   }
 
   drawNoSmoothLine = (prePoint: any, point: any) => {
@@ -234,6 +288,16 @@ class SmoothSignature {
     this.ctx.moveTo(x1, y1);
     this.ctx.quadraticCurveTo(x2, y2, x3, y3);
     this.ctx.stroke();
+  }
+
+  drawTrapezoid = (point1: any, point2: any, point3: any, point4: any) => {
+    this.ctx.beginPath();
+    this.ctx.moveTo(point1.x, point1.y);
+    this.ctx.lineTo(point2.x, point2.y);
+    this.ctx.lineTo(point3.x, point3.y);
+    this.ctx.lineTo(point4.x, point4.y);
+    this.ctx.fillStyle = this.color;
+    this.ctx.fill();
   }
 
   drawBgColor = () => {

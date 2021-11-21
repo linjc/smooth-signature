@@ -12,7 +12,7 @@
     - [1、采集坐标](#1采集画笔经过的点坐标和时间)
     - [2、计算速度](#2计算两点之间移动速度)
     - [3、计算线宽](#3计算两点之间线的宽度)
-    - [4、画线](#4画曲线直线)
+    - [4、画线](#4画线)
 - [快捷链接](#快捷链接)
 
 ## 前言
@@ -137,7 +137,7 @@ const signature = new SmoothSignature(canvas, {
 
 **options.maxWidthDiffRate**
 
-相邻两线宽度增(减)量最大百分比，取值范围1-100，为了达到笔锋效果，画笔宽度会随画笔速度而改变，如果相邻两线宽度差太大，就会出现明显的竹节效果，使用maxWidthDiffRate限制宽度差来调整过渡效果。可以自行调整查看效果，选出自己满意的值。
+相邻两线宽度增(减)量最大百分比，取值范围1-100，为了达到笔锋效果，画笔宽度会随画笔速度而改变，如果相邻两线宽度差太大，过渡效果就会很突兀，使用maxWidthDiffRate限制宽度差，让过渡效果更自然。可以自行调整查看效果，选出自己满意的值。
 
 * Type: `number`
 * Default：20
@@ -193,7 +193,7 @@ const speed = distance / (end.t - start.t);
 const addWidth = (maxWidth - minWidth) * speed / minSpeed;
 const lineWidth = Math.min(Math.max(maxWidth - addWidth, minWidth), maxWidth);
 ```
-另外，为了防止相邻两条线宽度差太大，而导致出现明显竹节效果，需要做下限制，其中maxWidthDiffRate为配置项，preLineWidth为上一条线的宽度
+另外，为了防止相邻两条线宽度差太大，而出现突兀的过渡效果，需要做下限制，其中maxWidthDiffRate为配置项，preLineWidth为上一条线的宽度
 ```js
 const rate = (lineWidth - preLineWidth) / preLineWidth;
 const maxRate = maxWidthDiffRate / 100;
@@ -203,10 +203,10 @@ if (Math.abs(rate) > maxRate) {
 }
 ```
 
-#### 4、画曲线/直线
+#### 4、画线
 现在已经知道每两点间线的宽度，接下来就是画线了。为了让线条看起来圆润以及线粗细过渡更自然，我把两点之间的线平均成三段，其中：
 1) 第一段（x0,y0 - x1,y1）线宽设置为当前线宽和上一条线宽的平均值lineWidth1 = (preLineWidth + lineWidth) / 2
-2) 第二段（x1,y1 - x2,y2）线宽保持不变lineWidth2 = lineWidth
+2) 第二段（x1,y1 - x2,y2）
 3) 第三段（x2,y2 - next_x0,next_y0）线宽设置为当前线宽和下一条线宽的平均值lineWidth3 = (nextLineWidth + lineWidth) / 2
 
 开始画线，先来看第一段线，因为第一段线和上一条线相交，为了保证两条线过渡比较圆润，采用二次贝塞尔曲线，起点为上一条线的第三段起点(pre_x2, pre_y2)
@@ -218,13 +218,14 @@ ctx.quadraticCurveTo(x0, y0, x1, y1);
 ctx.stroke();
 ```
 
-第二段画直线
+第二段线为承接第一段和第三段的过渡线，由于第一段和第三段线宽有差异，所以第二段线使用梯形填充，让过渡效果更自然。
 ```js
-ctx.lineWidth = lineWidth2
 ctx.beginPath();
-ctx.moveTo(x1, y1);
-ctx.lineTo(x2, y2);
-ctx.stroke();
+ctx.moveTo(point1.x, point1.y);
+ctx.lineTo(point2.x, point2.y);
+ctx.lineTo(point3.x, point3.y);
+ctx.lineTo(point4.x, point4.y);
+ctx.fill();
 ```
 
 第三段等画下一条线时重复上述操作即可。

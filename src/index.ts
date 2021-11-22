@@ -238,18 +238,20 @@ class SmoothSignature {
   drawSmoothLine = (prePoint: any, point: any) => {
     const dis_x = point.x - prePoint.x;
     const dis_y = point.y - prePoint.y;
-    const x1 = prePoint.x + (dis_x * 0.3);
-    const y1 = prePoint.y + (dis_y * 0.3);
-    const x2 = prePoint.x + (dis_x * 0.7);
-    const y2 = prePoint.y + (dis_y * 0.7);
-    point.lastX1 = x1;
-    point.lastY1 = y1;
-    point.lastX2 = x2;
-    point.lastY2 = y2;
+    if (Math.abs(dis_x) + Math.abs(dis_y) <= 2) {
+      point.lastX1 = point.lastX2 = prePoint.x + (dis_x * 0.5);
+      point.lastY1 = point.lastY2 = prePoint.y + (dis_y * 0.5);
+    } else {
+      point.lastX1 = prePoint.x + (dis_x * 0.3);
+      point.lastY1 = prePoint.y + (dis_y * 0.3);
+      point.lastX2 = prePoint.x + (dis_x * 0.7);
+      point.lastY2 = prePoint.y + (dis_y * 0.7);
+    }
     point.perLineWidth = (prePoint.lineWidth + point.lineWidth) / 2;
     if (typeof prePoint.lastX1 === 'number') {
-      this.drawCurveLine(prePoint.lastX2, prePoint.lastY2, prePoint.x, prePoint.y, x1, y1, point.perLineWidth);
+      this.drawCurveLine(prePoint.lastX2, prePoint.lastY2, prePoint.x, prePoint.y, point.lastX1, point.lastY1, point.perLineWidth);
       if (prePoint.isFirstPoint) return;
+      if (prePoint.lastX1 === prePoint.lastX2 && prePoint.lastY1 === prePoint.lastY2) return;
       const data = this.getRadianData(prePoint.lastX1, prePoint.lastY1, prePoint.lastX2, prePoint.lastY2);
       const points1 = this.getRadianPoints(data, prePoint.lastX1, prePoint.lastY1, prePoint.perLineWidth / 2);
       const points2 = this.getRadianPoints(data, prePoint.lastX2, prePoint.lastY2, point.perLineWidth / 2);
@@ -260,10 +262,8 @@ class SmoothSignature {
   }
 
   drawNoSmoothLine = (prePoint: any, point: any) => {
-    const halfW = (point.x - prePoint.x) / 2;
-    const halfH = (point.y - prePoint.y) / 2;
-    point.lastX = prePoint.x + halfW;
-    point.lastY = prePoint.y + halfH;
+    point.lastX = prePoint.x + (point.x - prePoint.x) * 0.5;
+    point.lastY = prePoint.y + (point.y - prePoint.y) * 0.5;
     if (typeof prePoint.lastX === 'number') {
       this.drawCurveLine(
         prePoint.lastX, prePoint.lastY,
@@ -275,27 +275,30 @@ class SmoothSignature {
   }
 
   drawLine = (x1: number, y1: number, x2: number, y2: number, lineWidth: number) => {
-    this.ctx.lineWidth = lineWidth;
+    this.ctx.lineWidth = Number(lineWidth.toFixed(1));
     this.ctx.beginPath();
-    this.ctx.moveTo(x1, y1);
-    this.ctx.lineTo(x2, y2);
+    this.ctx.moveTo(Number(x1.toFixed(1)), Number(y1.toFixed(1)));
+    this.ctx.lineTo(Number(x2.toFixed(1)), Number(y1.toFixed(1)));
     this.ctx.stroke();
   }
 
   drawCurveLine = (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, lineWidth: number) => {
-    this.ctx.lineWidth = lineWidth
+    this.ctx.lineWidth = Number(lineWidth.toFixed(1));
     this.ctx.beginPath();
-    this.ctx.moveTo(x1, y1);
-    this.ctx.quadraticCurveTo(x2, y2, x3, y3);
+    this.ctx.moveTo(Number(x1.toFixed(1)), Number(y1.toFixed(1)));
+    this.ctx.quadraticCurveTo(
+      Number(x2.toFixed(1)), Number(y2.toFixed(1)),
+      Number(x3.toFixed(1)), Number(y3.toFixed(1))
+    );
     this.ctx.stroke();
   }
 
   drawTrapezoid = (point1: any, point2: any, point3: any, point4: any) => {
     this.ctx.beginPath();
-    this.ctx.moveTo(point1.x, point1.y);
-    this.ctx.lineTo(point2.x, point2.y);
-    this.ctx.lineTo(point3.x, point3.y);
-    this.ctx.lineTo(point4.x, point4.y);
+    this.ctx.moveTo(Number(point1.x.toFixed(1)), Number(point1.y.toFixed(1)));
+    this.ctx.lineTo(Number(point2.x.toFixed(1)), Number(point2.y.toFixed(1)));
+    this.ctx.lineTo(Number(point3.x.toFixed(1)), Number(point3.y.toFixed(1)));
+    this.ctx.lineTo(Number(point4.x.toFixed(1)), Number(point4.y.toFixed(1)));
     this.ctx.fillStyle = this.color;
     this.ctx.fill();
   }

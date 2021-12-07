@@ -122,25 +122,22 @@ class SmoothSignature {
     e.preventDefault();
     if (!this.canDraw) return;
     this.initPoint(e);
-    this.onDraw();
-  }
-
-  onDraw = () => {
     if (this.points.length < 3) return;
     this.addHistory();
     const point = this.points.slice(-1)[0];
     const prePoint = this.points.slice(-2, -1)[0];
-    const onDraw = () => {
-      if (this.openSmooth) {
-        this.drawSmoothLine(prePoint, point);
-      } else {
-        this.drawNoSmoothLine(prePoint, point);
-      }
-    }
     if (window.requestAnimationFrame) {
-      window.requestAnimationFrame(() => onDraw());
+      window.requestAnimationFrame(() => this.onDraw(prePoint, point));
     } else {
-      onDraw()
+      this.onDraw(prePoint, point);
+    }
+  }
+
+  onDraw = (prePoint: any, point: any) => {
+    if (this.openSmooth) {
+      this.drawSmoothLine(prePoint, point);
+    } else {
+      this.drawNoSmoothLine(prePoint, point);
     }
   }
 
@@ -272,14 +269,6 @@ class SmoothSignature {
         this.maxWidth
       );
     }
-  }
-
-  drawLine = (x1: number, y1: number, x2: number, y2: number, lineWidth: number) => {
-    this.ctx.lineWidth = Number(lineWidth.toFixed(1));
-    this.ctx.beginPath();
-    this.ctx.moveTo(Number(x1.toFixed(1)), Number(y1.toFixed(1)));
-    this.ctx.lineTo(Number(x2.toFixed(1)), Number(y1.toFixed(1)));
-    this.ctx.stroke();
   }
 
   drawCurveLine = (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, lineWidth: number) => {

@@ -122,7 +122,7 @@ class SmoothSignature {
     e.preventDefault();
     if (!this.canDraw) return;
     this.initPoint(e);
-    if (this.points.length < 3) return;
+    if (this.points.length < 2) return;
     this.addHistory();
     const point = this.points.slice(-1)[0];
     const prePoint = this.points.slice(-2, -1)[0];
@@ -235,7 +235,7 @@ class SmoothSignature {
   drawSmoothLine = (prePoint: any, point: any) => {
     const dis_x = point.x - prePoint.x;
     const dis_y = point.y - prePoint.y;
-    if (Math.abs(dis_x) + Math.abs(dis_y) <= 2) {
+    if (Math.abs(dis_x) + Math.abs(dis_y) <= this.scale) {
       point.lastX1 = point.lastX2 = prePoint.x + (dis_x * 0.5);
       point.lastY1 = point.lastY2 = prePoint.y + (dis_y * 0.5);
     } else {

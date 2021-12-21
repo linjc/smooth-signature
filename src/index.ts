@@ -86,7 +86,7 @@ class SmoothSignature {
   addListener = () => {
     this.removeListener();
     this.canvas.style.touchAction = 'none';
-    if ('ontouchstart' in window) {
+    if ('ontouchstart' in window || navigator.maxTouchPoints) {
       this.canvas.addEventListener('touchstart', this.onDrawStart);
       this.canvas.addEventListener('touchmove', this.onDrawMove);
       document.addEventListener('touchcancel', this.onDrawEnd);

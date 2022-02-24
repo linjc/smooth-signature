@@ -348,12 +348,14 @@ class SmoothSignature {
 
   isEmpty = () => {
     const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     canvas.width = this.canvas.width;
     canvas.height = this.canvas.height;
     if (this.bgColor) {
-      const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else if (this.scale !== 1) {
+      ctx.scale(this.scale, this.scale);
     }
     return canvas.toDataURL() === this.canvas.toDataURL();
   }

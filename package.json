@@ -1,6 +1,6 @@
 {
   "name": "smooth-signature",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "前端H5带笔锋手写签名，支持PC端和移动端，无框架限制，Vue、React等均可使用",
   "main": "lib/index.js",
   "module": "es/index.js",

@@ -61,7 +61,7 @@ class SmoothSignature {
     this.scale = options.scale || this.scale;
     this.color = options.color || this.color;
     this.bgColor = options.bgColor || this.bgColor;
-    this.openSmooth = options.openSmooth || this.openSmooth;
+    this.openSmooth = options.openSmooth === undefined ? this.openSmooth : !!options.openSmooth;
     this.minWidth = options.minWidth || this.minWidth;
     this.maxWidth = options.maxWidth || this.maxWidth;
     this.minSpeed = options.minSpeed || this.minSpeed;

@@ -87,10 +87,10 @@ class SmoothSignature {
     this.removeListener();
     this.canvas.style.touchAction = 'none';
     if ('ontouchstart' in window || navigator.maxTouchPoints) {
-      this.canvas.addEventListener('touchstart', this.onDrawStart);
-      this.canvas.addEventListener('touchmove', this.onDrawMove);
-      document.addEventListener('touchcancel', this.onDrawEnd);
-      document.addEventListener('touchend', this.onDrawEnd);
+      this.canvas.addEventListener('touchstart', this.onDrawStart, { passive: false });
+      this.canvas.addEventListener('touchmove', this.onDrawMove, { passive: false });
+      document.addEventListener('touchcancel', this.onDrawEnd, { passive: false });
+      document.addEventListener('touchend', this.onDrawEnd, { passive: false });
     } else {
       this.canvas.addEventListener('mousedown', this.onDrawStart);
       this.canvas.addEventListener('mousemove', this.onDrawMove);

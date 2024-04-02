@@ -7,7 +7,7 @@
       <button @click="handleColor">Change Color</button>
     </div>
     <div class="tip">使用手机端手写更方便</div>
-    <canvas />
+    <canvas id="canvas" />
   </div>
 </template>
 
@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     init() {
-      const canvas = document.querySelector("canvas");
+      const canvas = document.getElementById("canvas");
       const options = {
         width: Math.min(window.innerWidth, 1000),
         height: 600,

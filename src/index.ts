@@ -28,6 +28,8 @@ interface IRadianData {
   pos: -1 | 1;
 }
 
+const isMobile = (/Android|iPhone|iPad|Mobile/i).test(navigator.userAgent);
+
 class SmoothSignature {
   constructor(canvas: HTMLCanvasElement, options: IOptions) {
     this.init(canvas, options)
@@ -86,7 +88,7 @@ class SmoothSignature {
   addListener = () => {
     this.removeListener();
     this.canvas.style.touchAction = 'none';
-    if ('ontouchstart' in window || navigator.maxTouchPoints) {
+    if (isMobile && ('ontouchstart' in window || navigator.maxTouchPoints)) {
       this.canvas.addEventListener('touchstart', this.onDrawStart, { passive: false });
       this.canvas.addEventListener('touchmove', this.onDrawMove, { passive: false });
       document.addEventListener('touchcancel', this.onDrawEnd, { passive: false });

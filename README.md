@@ -1,8 +1,8 @@
 # smooth-signature 带笔锋手写签名
 
-- [Demo在线演示](https://l2j2c3.gitee.io/smooth-signature/demo/index.html)  以下截图为手机端手写效果图
+- [Demo在线演示](https://linjc.github.io/smooth-signature/)  以下截图为手机端手写效果图
 
-![Demo](https://l2j2c3.gitee.io/smooth-signature/demo.jpg)
+![Demo](https://linjc.github.io/signature-demo.jpg)
 
 - [前言](#前言)
 - [安装](#安装)

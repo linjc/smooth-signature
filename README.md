@@ -49,10 +49,10 @@ const canvas = document.querySelector("canvas");
 const signature = new SmoothSignature(canvas);
 
 // 生成PNG
-signature.getPNG() // 或者 signature.toDataURL()
+const url = signature.getPNG() // 或者 signature.toDataURL()
 
 // 生成JPG
-signature.getJPG() // 或者 signature.toDataURL('image/jpeg')
+const url = signature.getJPG() // 或者 signature.toDataURL('image/jpeg')
 
 // 清屏
 signature.clear()

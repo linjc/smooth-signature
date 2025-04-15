@@ -3,6 +3,7 @@
     <div class="actions">
       <button @click="handleClear">Clear</button>
       <button @click="handleUndo">Undo</button>
+      <button @click="handleRedo">Redo</button>
       <button @click="handlePreview">View PNG</button>
       <button @click="handleColor">Change Color</button>
     </div>
@@ -41,6 +42,9 @@ export default {
     },
     handleUndo() {
       this.signature.undo();
+    },
+    handleRedo() {
+      this.signature.redo();
     },
     handleColor() {
       this.signature.color = '#' + Math.random().toString(16).slice(-6);

@@ -60,6 +60,9 @@ signature.clear()
 // 撤销
 signature.undo()
 
+// 重做
+signature.redo()
+
 // 是否为空
 signature.isEmpty()
 
@@ -138,13 +141,6 @@ const signature = new SmoothSignature(canvas, {
 **options.maxWidthDiffRate**
 
 相邻两线宽度增(减)量最大百分比，取值范围1-100，为了达到笔锋效果，画笔宽度会随画笔速度而改变，如果相邻两线宽度差太大，过渡效果就会很突兀，使用maxWidthDiffRate限制宽度差，让过渡效果更自然。可以自行调整查看效果，选出自己满意的值。
-
-* Type: `number`
-* Default：20
-
-**options.maxHistoryLength**
-
-限制历史记录数，即最大可撤销数，传入0则关闭历史记录功能
 
 * Type: `number`
 * Default：20

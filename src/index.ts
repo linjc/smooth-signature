@@ -9,7 +9,6 @@ interface IOptions {
   maxWidth?: number;
   minSpeed?: number;
   maxWidthDiffRate?: number;
-  maxHistoryLength?: number;
   onStart?: (event: any) => void;
   onEnd?: (event: any) => void;
 }
@@ -21,6 +20,7 @@ interface IPoint {
   speed?: number;
   distance?: number;
   lineWidth?: number;
+  color?: string;
 }
 
 interface IRadianData {
@@ -48,9 +48,8 @@ class SmoothSignature {
   minSpeed = 1.5;
   maxWidthDiffRate = 20;
   points: IPoint[] = [];
-  canAddHistory = true;
-  historyList: string[] = [];
-  maxHistoryLength = 20;
+  undoList: IPoint[][] = [];
+  redoList: IPoint[][] = [];
   onStart: any = () => { }
   onEnd: any = () => { }
 
@@ -68,7 +67,6 @@ class SmoothSignature {
     this.maxWidth = options.maxWidth || this.maxWidth;
     this.minSpeed = options.minSpeed || this.minSpeed;
     this.maxWidthDiffRate = options.maxWidthDiffRate || this.maxWidthDiffRate;
-    this.maxHistoryLength = options.maxHistoryLength || this.maxHistoryLength;
     this.onStart = options.onStart;
     this.onEnd = options.onEnd;
     if (this.scale > 0) {
@@ -114,8 +112,6 @@ class SmoothSignature {
   onDrawStart = (e: any) => {
     e.preventDefault();
     this.canDraw = true;
-    this.canAddHistory = true;
-    this.ctx.strokeStyle = this.color;
     this.initPoint(e);
     this.onStart && this.onStart(e);
   }
@@ -125,7 +121,6 @@ class SmoothSignature {
     if (!this.canDraw) return;
     this.initPoint(e);
     if (this.points.length < 2) return;
-    this.addHistory();
     const point = this.points.slice(-1)[0];
     const prePoint = this.points.slice(-2, -1)[0];
     if (window.requestAnimationFrame) {
@@ -136,6 +131,7 @@ class SmoothSignature {
   }
 
   onDraw = (prePoint: any, point: any) => {
+    this.ctx.strokeStyle = point.color || this.color;
     if (this.openSmooth) {
       this.drawSmoothLine(prePoint, point);
     } else {
@@ -145,8 +141,9 @@ class SmoothSignature {
 
   onDrawEnd = (e: any) => {
     if (!this.canDraw) return;
+    this.undoList.push(this.points);
+    this.redoList = [];
     this.canDraw = false;
-    this.canAddHistory = true;
     this.points = [];
     this.onEnd && this.onEnd(e);
   }
@@ -214,7 +211,7 @@ class SmoothSignature {
     if (prePoint && prePoint.x === x && prePoint.y === y) {
       return
     }
-    const point: IPoint = { x, y, t }
+    const point: IPoint = { x, y, t, color: this.color }
     if (this.openSmooth && prePoint) {
       const prePoint2 = this.points.slice(-2, -1)[0];
       point.distance = Math.sqrt(Math.pow(point.x - prePoint.x, 2) + Math.pow(point.y - prePoint.y, 2));
@@ -231,7 +228,6 @@ class SmoothSignature {
       }
     }
     this.points.push(point);
-    this.points = this.points.slice(-3);
   }
 
   drawSmoothLine = (prePoint: any, point: any) => {
@@ -254,7 +250,7 @@ class SmoothSignature {
       const data = this.getRadianData(prePoint.lastX1, prePoint.lastY1, prePoint.lastX2, prePoint.lastY2);
       const points1 = this.getRadianPoints(data, prePoint.lastX1, prePoint.lastY1, prePoint.perLineWidth / 2);
       const points2 = this.getRadianPoints(data, prePoint.lastX2, prePoint.lastY2, point.perLineWidth / 2);
-      this.drawTrapezoid(points1[0], points2[0], points2[1], points1[1]);
+      this.drawTrapezoid(points1[0], points2[0], points2[1], points1[1], point.color);
     } else {
       point.isFirstPoint = true;
     }
@@ -284,13 +280,13 @@ class SmoothSignature {
     this.ctx.stroke();
   }
 
-  drawTrapezoid = (point1: any, point2: any, point3: any, point4: any) => {
+  drawTrapezoid = (point1: any, point2: any, point3: any, point4: any, color: string) => {
     this.ctx.beginPath();
     this.ctx.moveTo(Number(point1.x.toFixed(1)), Number(point1.y.toFixed(1)));
     this.ctx.lineTo(Number(point2.x.toFixed(1)), Number(point2.y.toFixed(1)));
     this.ctx.lineTo(Number(point3.x.toFixed(1)), Number(point3.y.toFixed(1)));
     this.ctx.lineTo(Number(point4.x.toFixed(1)), Number(point4.y.toFixed(1)));
-    this.ctx.fillStyle = this.color;
+    this.ctx.fillStyle = color || this.color;
     this.ctx.fill();
   }
 
@@ -310,22 +306,39 @@ class SmoothSignature {
     image.src = url;
   }
 
-  addHistory = () => {
-    if (!this.maxHistoryLength || !this.canAddHistory) return;
-    this.canAddHistory = false;
-    this.historyList.push(this.canvas.toDataURL());
-    this.historyList = this.historyList.slice(-this.maxHistoryLength);
-  }
-
   clear = () => {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.drawBgColor();
-    this.historyList.length = 0;
+    this.undoList = [];
+    this.redoList = [];
   }
 
   undo = () => {
-    const dataUrl = this.historyList.splice(-1)[0];
-    dataUrl && this.drawByImageUrl(dataUrl);
+    if (!this.undoList.length) return;
+    const points = this.undoList.pop();
+    points && this.redoList.unshift(points);
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.drawBgColor();
+    this.undoList.forEach(points => {
+      points.forEach((point, index) => {
+        if (index === 0) return
+        this.onDraw(points[index - 1], point)
+      })
+    })
+  }
+
+  redo = () => {
+    if (!this.redoList.length) return;
+    const points = this.redoList.shift();
+    points && this.undoList.push(points);
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.drawBgColor();
+    this.undoList.forEach(points => {
+      points.forEach((point, index) => {
+        if (index === 0) return
+        this.onDraw(points[index - 1], point)
+      })
+    })
   }
 
   toDataURL = (type = 'image/png', quality = 1) => {

@@ -5,6 +5,7 @@
       <div class="actions">
         <button @click="handleClear1">Clear</button>
         <button @click="handleUndo1">Undo</button>
+        <button @click="handleRedo1">Redo</button>
         <button @click="handlePreview1">View PNG</button>
         <button @click="handleColor1">Change Color</button>
         <button @click="handleFull">Full Screen</button>
@@ -15,6 +16,7 @@
         <div class="actions">
           <button @click="handleClear2">Clear</button>
           <button @click="handleUndo2">Undo</button>
+          <button @click="handleRedo2">Redo</button>
           <button @click="handlePreview2">View PNG</button>
           <button @click="handleColor2">Change Color</button>
           <button @click="handleFull">Close Full Screen</button>
@@ -74,6 +76,12 @@ export default {
     },
     handleUndo2() {
       this.signature2.undo();
+    },
+    handleRedo1() {
+      this.signature1.redo();
+    },
+    handleRedo2() {
+      this.signature2.redo();
     },
     handleFull() {
       this.showFull = !this.showFull;
